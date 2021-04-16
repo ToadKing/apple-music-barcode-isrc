@@ -2,7 +2,7 @@
 // @name        Apple Music Barcodes/ISRCs
 // @namespace   applemusic.barcode.isrc
 // @description Get Barcodes/ISRCs/etc. from Apple Music pages
-// @version     0.5
+// @version     0.6
 // @grant       none
 // @include     https://music.apple.com/*
 // @grant       none
@@ -79,16 +79,28 @@ function getDatums() {
       table.style.borderSpacing = '2px'
       table.setAttribute('border', '1')
       const thead = addSimple('', 'thead', table)
-      thead.style.position = 'sticky'
-      thead.style.top = 0
-      thead.style.background = 'white'
       thead.style.fontWeight = 'bold'
       const tr = addSimple('', 'tr', thead)
-      addSimple('Track', 'td', tr)
-      addSimple('Title', 'td', tr)
-      addSimple('Artist', 'td', tr)
-      addSimple('Composer', 'td', tr)
-      addSimple('ISRC', 'td', tr)
+      const t1 = addSimple('Track', 'td', tr)
+      t1.style.background = 'white'
+      t1.style.position = 'sticky'
+      t1.style.top = 0
+      const t2 = addSimple('Title', 'td', tr)
+      t2.style.background = 'white'
+      t2.style.position = 'sticky'
+      t2.style.top = 0
+      const t3 = addSimple('Artist', 'td', tr)
+      t3.style.background = 'white'
+      t3.style.position = 'sticky'
+      t3.style.top = 0
+      const t4 = addSimple('Composer', 'td', tr)
+      t4.style.background = 'white'
+      t4.style.position = 'sticky'
+      t4.style.top = 0
+      const t5 = addSimple('ISRC', 'td', tr)
+      t5.style.background = 'white'
+      t5.style.position = 'sticky'
+      t5.style.top = 0
 
       const tbody = addSimple('', 'tbody', table)
       for (const track of album.tracks) {
