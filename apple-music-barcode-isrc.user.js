@@ -2,7 +2,7 @@
 // @name        Apple Music Barcodes/ISRCs
 // @namespace   applemusic.barcode.isrc
 // @description Get Barcodes/ISRCs/etc. from Apple Music pages
-// @version     0.2
+// @version     0.4
 // @grant       none
 // @include     https://music.apple.com/*
 // @grant       none
@@ -17,16 +17,10 @@ function addSimple(content, node, parent) {
   return elem
 }
 
-let music_info
-
-try {
-	music_info = JSON.parse(document.getElementById('shoebox-media-api-cache-amp-music').innerHTML)
-} catch(e) {
-	console.log('shoebox-media-api-cache-amp-music not found', e)
-}
-
 function getDatums() {
   try {
+    const music_info = JSON.parse(document.getElementById('shoebox-media-api-cache-amp-music').innerHTML)
+
     const albums = []
 
     for (const [key, value] of Object.entries(music_info).filter(([key]) => key.startsWith('\uF8FF.catalog.'))) {
