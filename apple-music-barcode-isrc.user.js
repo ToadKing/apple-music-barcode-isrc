@@ -2,7 +2,7 @@
 // @name        Apple Music Barcodes/ISRCs
 // @namespace   applemusic.barcode.isrc
 // @description Get Barcodes/ISRCs/etc. from Apple Music pages
-// @version     0.1
+// @version     0.2
 // @grant       none
 // @include     https://music.apple.com/*
 // @grant       none
@@ -75,7 +75,7 @@ function getDatums() {
     for (const album of albums) {
       addSimple(album.name, 'h1', results)
       addSimple(album.artist, 'h2', results)
-      addSimple(`Barcoode: ${album.barcode}`, 'p', results)
+      addSimple(`Barcode: ${album.barcode}`, 'p', results)
 
       const hasMultipleDiscs = album.tracks.some(t => t.disc !== 1)
 
