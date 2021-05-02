@@ -2,7 +2,7 @@
 // @name        Apple Music Barcodes/ISRCs
 // @namespace   applemusic.barcode.isrc
 // @description Get Barcodes/ISRCs/etc. from Apple Music pages
-// @version     0.6
+// @version     0.7
 // @grant       none
 // @include     https://music.apple.com/*
 // @grant       none
@@ -17,47 +17,9 @@ function addSimple(content, node, parent) {
   return elem
 }
 
-function getDatums() {
+async function getDatums() {
   try {
-    const music_info = JSON.parse(document.getElementById('shoebox-media-api-cache-amp-music').innerHTML)
-
-    const albums = []
-
-    for (const [key, value] of Object.entries(music_info).filter(([key]) => key.startsWith('\uF8FF.catalog.'))) {
-      const albumsData = JSON.parse(value)
-
-      for (const albumData of albumsData.d.filter((item) => item.type === 'albums')) {
-        const album = {
-          name: albumData.attributes.name,
-          artist: albumData.attributes.artistName,
-          barcode: albumData.attributes.upc,
-          tracks: [],
-        }
-
-        if (albumData.relationships.tracks) {
-          for (const track_data of albumData.relationships.tracks.data) {
-            const track = {
-              name: track_data.attributes.name,
-              artist: track_data.attributes.artistName,
-              composer: track_data.attributes.composerName,
-              disc: track_data.attributes.discNumber,
-              track: track_data.attributes.trackNumber,
-              isrc: track_data.attributes.isrc,
-            }
-
-            album.tracks.push(track)
-          }
-        }
-
-        albums.push(album)
-      }
-    }
-
-    if (albums.length === 0) {
-      throw new Error('no albums found')
-    }
-
-    const results = addSimple('', 'div', document.body)
+    const results = addSimple('Loading, press ESC to close...', 'div', document.body)
     results.style.position = 'absolute'
     results.style.inset = '30px'
     results.style.zIndex = 2147483647
@@ -65,6 +27,60 @@ function getDatums() {
     results.style.color = 'black'
     results.style.overflow = 'auto'
     results.style.padding = '4px'
+    
+    const close = (e) => {
+      if (e.key === 'Escape') {
+        document.body.removeEventListener('keydown', close)
+        results.remove()
+      }
+    }
+    document.body.addEventListener('keydown', close)
+
+    const albumId = document.location.pathname.split('/').reverse().find(p => /^\d+$/.test(p))
+    const country = document.location.pathname.split('/')[1]
+    const app = JSON.parse(decodeURIComponent(document.querySelector('meta[name="desktop-music-app/config/environment"]').getAttribute('content')))
+    const baseURL = app.MUSIC.BASE_URL
+    const token = app.MEDIA_API.token
+    const url = `${baseURL}/catalog/${country}/albums/${albumId}`
+    
+    const res = await fetch(url, { method: 'GET', mode: 'cors', credentials: 'include', headers: { Authorization: `Bearer ${token}` } })
+    const resJson = await res.json()
+    const albumsData = resJson.data
+
+    const albums = []
+
+    for (const albumData of albumsData.filter((item) => item.type === 'albums')) {
+      const album = {
+        name: albumData.attributes.name,
+        artist: albumData.attributes.artistName,
+        barcode: albumData.attributes.upc,
+        tracks: [],
+      }
+
+      if (albumData.relationships.tracks) {
+        for (const track_data of albumData.relationships.tracks.data) {
+          const track = {
+            name: track_data.attributes.name,
+            artist: track_data.attributes.artistName,
+            composer: track_data.attributes.composerName,
+            disc: track_data.attributes.discNumber,
+            track: track_data.attributes.trackNumber,
+            isrc: track_data.attributes.isrc,
+          }
+
+          album.tracks.push(track)
+        }
+      }
+
+      albums.push(album)
+    }
+
+    if (albums.length === 0) {
+      throw new Error('no albums found')
+      results.remove()
+    }
+    
+    results.textContent = ''
 
     for (const album of albums) {
       addSimple(album.name, 'h1', results)
@@ -112,14 +128,8 @@ function getDatums() {
         addSimple(track.isrc, 'td', tr)
       }
     }
-
-    const close = (e) => {
-      if (e.key === 'Escape') {
-        document.body.removeEventListener('keydown', close)
-        results.remove()
-      }
-    }
-    document.body.addEventListener('keydown', close)
+    
+    addSimple('Press ESC to close', 'p', results)
   } catch (e) {
     alert(e)
   }
