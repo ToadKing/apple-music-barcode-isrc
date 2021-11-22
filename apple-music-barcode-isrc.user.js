@@ -2,7 +2,7 @@
 // @name        Apple Music Barcodes/ISRCs
 // @namespace   applemusic.barcode.isrc
 // @description Get Barcodes/ISRCs/etc. from Apple Music pages
-// @version     0.7
+// @version     0.8
 // @grant       none
 // @include     https://music.apple.com/*
 // @grant       none
@@ -37,6 +37,7 @@ function getDatums() {
           audio: albumData.attributes.audioTraits,
           copyright: albumData.attributes.copyright,
           tracks: [],
+          differentDates: false,
         }
 
         if (albumData.relationships.tracks) {
@@ -48,6 +49,11 @@ function getDatums() {
               disc: track_data.attributes.discNumber,
               track: track_data.attributes.trackNumber,
               isrc: track_data.attributes.isrc,
+              releaseDate: track_data.attributes.releaseDate,
+            }
+            
+            if (track.releaseDate !== album.releaseDate) {
+              album.differentDates = true
             }
 
             album.tracks.push(track)
@@ -74,7 +80,14 @@ function getDatums() {
     for (const album of albums) {
       addSimple(album.name, 'h1', results)
       addSimple(album.artist, 'h2', results)
-      addSimple(`Release Date: ${album.releaseDate}`, 'p', results)
+      const albumDate = addSimple(`Release Date: ${album.releaseDate}`, 'p', results)
+      if (album.differentDates) {
+        albumDate.appendChild(document.createTextNode(' '))
+        const bold = document.createElement('b')
+        bold.style.color = '#c00'
+        bold.textContent = '(Some track dates differ)'
+        albumDate.appendChild(bold)
+      }
       addSimple(`Label: ${album.label}`, 'p', results)
       addSimple(`Barcode: ${album.barcode}`, 'p', results)
       addSimple(`Mastered for iTunes: ${album.isMasteredForItunes}`, 'p', results)
@@ -111,6 +124,13 @@ function getDatums() {
       t5.style.background = 'white'
       t5.style.position = 'sticky'
       t5.style.top = 0
+      
+      if (album.differentDates) {
+        const t6 = addSimple('Date', 'td', tr)
+        t6.style.background = 'white'
+        t6.style.position = 'sticky'
+        t6.style.top = 0
+      }
 
       const tbody = addSimple('', 'tbody', table)
       for (const track of album.tracks) {
@@ -120,6 +140,13 @@ function getDatums() {
         addSimple(track.artist, 'td', tr)
         addSimple(track.composer, 'td', tr)
         addSimple(track.isrc, 'td', tr)
+        if (album.differentDates) {
+          const trackDate = addSimple(track.releaseDate, 'td', tr)
+          if (track.releaseDate !== album.releaseDate) {
+            trackDate.style.fontWeight = 'bold'
+            trackDate.style.color = '#c00'
+          }
+        }
       }
     }
 
