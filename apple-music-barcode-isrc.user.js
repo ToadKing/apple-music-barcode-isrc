@@ -2,7 +2,7 @@
 // @name        Apple Music Barcodes/ISRCs
 // @namespace   applemusic.barcode.isrc
 // @description Get Barcodes/ISRCs/etc. from Apple Music pages
-// @version     0.6
+// @version     0.7
 // @grant       none
 // @include     https://music.apple.com/*
 // @grant       none
@@ -30,7 +30,12 @@ function getDatums() {
         const album = {
           name: albumData.attributes.name,
           artist: albumData.attributes.artistName,
+          releaseDate: albumData.attributes.releaseDate,
+          label: albumData.attributes.recordLabel,
           barcode: albumData.attributes.upc,
+          isMasteredForItunes: albumData.attributes.isMasteredForItunes,
+          audio: albumData.attributes.audioTraits,
+          copyright: albumData.attributes.copyright,
           tracks: [],
         }
 
@@ -69,7 +74,12 @@ function getDatums() {
     for (const album of albums) {
       addSimple(album.name, 'h1', results)
       addSimple(album.artist, 'h2', results)
+      addSimple(`Release Date: ${album.releaseDate}`, 'p', results)
+      addSimple(`Label: ${album.label}`, 'p', results)
       addSimple(`Barcode: ${album.barcode}`, 'p', results)
+      addSimple(`Mastered for iTunes: ${album.isMasteredForItunes}`, 'p', results)
+      addSimple(`Audio: ${album.audio}`, 'p', results)
+      addSimple(`Copyright: ${album.copyright}`, 'p', results)
 
       const hasMultipleDiscs = album.tracks.some(t => t.disc !== 1)
 
