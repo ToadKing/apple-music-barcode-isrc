@@ -2,7 +2,7 @@
 // @name        Apple Music Barcodes/ISRCs
 // @namespace   applemusic.barcode.isrc
 // @description Get Barcodes/ISRCs/etc. from Apple Music pages
-// @version     0.8
+// @version     0.9
 // @grant       none
 // @include     https://music.apple.com/*
 // @grant       none
@@ -93,6 +93,17 @@ function getDatums() {
       addSimple(`Mastered for iTunes: ${album.isMasteredForItunes}`, 'p', results)
       addSimple(`Audio: ${album.audio}`, 'p', results)
       addSimple(`Copyright: ${album.copyright}`, 'p', results)
+      const kepstinContainer = addSimple('', 'p', results)
+      const kepstinLink = addSimple('Submit to kepstin’s MagicISRC', 'a', kepstinContainer)
+      kepstinLink.target = '_blank'
+      // we intentionally don't use the `isrcM-T` format due to differences in how Apple Music formats some track lists
+      kepstinLink.href = 'https://magicisrc.kepstin.ca/?' + album.tracks.map((track, i) => `isrc${i+1}=${track.isrc}`).join('&')
+      // work around Apple Music's handling of links
+      kepstinLink.addEventListener('click', e => {
+        e.preventDefault()
+        e.stopPropagation()
+        window.open(e.target.href, e.target.target)
+      })
 
       const hasMultipleDiscs = album.tracks.some(t => t.disc !== 1)
 
