@@ -2,7 +2,7 @@
 // @name        Apple Music Barcodes/ISRCs
 // @namespace   applemusic.barcode.isrc
 // @description Get Barcodes/ISRCs/etc. from Apple Music pages
-// @version     0.9
+// @version     0.11
 // @grant       none
 // @include     https://music.apple.com/*
 // @grant       none
@@ -41,6 +41,7 @@ function getDatums() {
         }
 
         if (albumData.relationships.tracks) {
+          let tracksHaveDates = false
           for (const track_data of albumData.relationships.tracks.data) {
             const track = {
               name: track_data.attributes.name,
@@ -51,12 +52,21 @@ function getDatums() {
               isrc: track_data.attributes.isrc,
               releaseDate: track_data.attributes.releaseDate,
             }
-            
+
             if (track.releaseDate !== album.releaseDate) {
               album.differentDates = true
             }
 
+            if (!!track_data.attributes.releaseDate) {
+              tracksHaveDates = true
+            }
+
             album.tracks.push(track)
+          }
+
+          if (!tracksHaveDates) {
+            // no tracks have release dates, unset the different dates flag
+            album.differentDates = false
           }
         }
 
@@ -135,7 +145,7 @@ function getDatums() {
       t5.style.background = 'white'
       t5.style.position = 'sticky'
       t5.style.top = 0
-      
+
       if (album.differentDates) {
         const t6 = addSimple('Date', 'td', tr)
         t6.style.background = 'white'
