@@ -2,7 +2,7 @@
 // @name        Apple Music Barcodes/ISRCs
 // @namespace   applemusic.barcode.isrc
 // @description Get Barcodes/ISRCs/etc. from Apple Music pages
-// @version     0.12
+// @version     0.13
 // @grant       none
 // @include     https://music.apple.com/*
 // @grant       none
@@ -58,7 +58,6 @@ async function getDatums() {
 
     const res = await asyncGM_xmlhttpRequest({ url, method: 'GET', mode: 'cors', credentials: 'include', headers: { Authorization: `Bearer ${token}`, Origin: new URL(baseURL).origin } })
     const resJson = JSON.parse(res)
-    console.log(resJson)
     const albumsData = resJson.data
 
     const albums = []
