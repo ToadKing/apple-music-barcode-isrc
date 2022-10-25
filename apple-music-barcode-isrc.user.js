@@ -2,7 +2,7 @@
 // @name        Apple Music Barcodes/ISRCs
 // @namespace   applemusic.barcode.isrc
 // @description Get Barcodes/ISRCs/etc. from Apple Music pages
-// @version     0.13
+// @version     0.14
 // @grant       none
 // @include     https://music.apple.com/*
 // @grant       none
@@ -14,17 +14,23 @@
 const token = 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IldlYlBsYXlLaWQifQ.eyJpc3MiOiJBTVBXZWJQbGF5IiwiaWF0IjoxNjY2MjA5MTY4LCJleHAiOjE2NzM0NjY3NjgsInJvb3RfaHR0cHNfb3JpZ2luIjpbImFwcGxlLmNvbSJdfQ.txDAv_8oy4G8zaens4enLYtADkP_zwcVLfT4NKW9l6Bt9KEyaYj566gtchMPJ-5cj7xxxrFsbd6wJcPbNvBRCg'
 const baseURL = 'https://amp-api.music.apple.com/v1'
 
-// Needs to use GM_xmlhttpRequest
+// Needs to attempt to use GM_xmlhttpRequest
 // 1. we need to set the origin header to any value, which you normally cannot do with fetch, because
 // 2. we may be running in the content script context instead of the page one if we're in Firefox
-function asyncGM_xmlhttpRequest(req) {
-  return new Promise((resolve, reject) => {
-    GM_xmlhttpRequest({
-      ...req,
-      onload(e) { resolve(e.response) },
-      onerror(e) { reject(e) },
+async function fetchWrapper(url, options) {
+  if (window.GM_xmlhttpRequest) {
+    return new Promise((resolve, reject) => {
+      GM_xmlhttpRequest({
+        ...options,
+        url,
+        onload(e) { resolve(e.response) },
+        onerror(e) { reject(e) },
+      })
     })
-  })
+  } else {
+    const res = await fetch(url, options)
+    return await res.text()
+  }
 }
 
 function addSimple(content, node, parent) {
@@ -56,7 +62,7 @@ async function getDatums() {
     const country = document.location.pathname.split('/')[1]
     const url = `${baseURL}/catalog/${country}/albums/${albumId}`
 
-    const res = await asyncGM_xmlhttpRequest({ url, method: 'GET', mode: 'cors', credentials: 'include', headers: { Authorization: `Bearer ${token}`, Origin: new URL(baseURL).origin } })
+    const res = await fetchWrapper(url, { method: 'GET', mode: 'cors', credentials: 'include', headers: { Authorization: `Bearer ${token}`, Origin: new URL(baseURL).origin } })
     const resJson = JSON.parse(res)
     const albumsData = resJson.data
 
