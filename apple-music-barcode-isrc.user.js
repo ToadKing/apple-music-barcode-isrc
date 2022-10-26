@@ -2,7 +2,7 @@
 // @name        Apple Music Barcodes/ISRCs
 // @namespace   applemusic.barcode.isrc
 // @description Get Barcodes/ISRCs/etc. from Apple Music pages
-// @version     0.15
+// @version     0.16
 // @grant       none
 // @include     https://music.apple.com/*
 // @run-at      document-idle
@@ -41,8 +41,21 @@ function addSimple(content, node, parent) {
 }
 
 async function getDatums() {
+  let results
+
+  const close = () => {
+    document.body.removeEventListener('keydown', escListener)
+    results.remove()
+  }
+
+  const escListener = (e) => {
+    if (e.key === 'Escape') {
+      close()
+    }
+  }
+
   try {
-    const results = addSimple('Loading, press ESC to close...', 'div', document.body)
+    results = addSimple('Loading, press ESC to close...', 'div', document.body)
     results.style.position = 'absolute'
     results.style.inset = '30px'
     results.style.zIndex = 2147483647
@@ -51,11 +64,7 @@ async function getDatums() {
     results.style.overflow = 'auto'
     results.style.padding = '4px'
 
-    const close = () => {
-      document.body.removeEventListener('keydown', close)
-      results.remove()
-    }
-    document.body.addEventListener('keydown', (e) => { if (e.key === 'Escape') close() })
+    document.body.addEventListener('keydown', escListener)
 
     const albumId = document.location.pathname.split('/').reverse().find(p => /^\d+$/.test(p))
     const country = document.location.pathname.split('/')[1]
@@ -115,7 +124,6 @@ async function getDatums() {
     }
 
     if (albums.length === 0) {
-      close()
       throw new Error('no albums found')
     }
 
@@ -210,6 +218,7 @@ async function getDatums() {
     addSimple('Press ESC to close', 'p', results)
   } catch (e) {
     alert(e)
+    close()
   }
 }
 
