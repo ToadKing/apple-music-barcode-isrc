@@ -2,8 +2,7 @@
 // @name        Apple Music Barcodes/ISRCs
 // @namespace   applemusic.barcode.isrc
 // @description Get Barcodes/ISRCs/etc. from Apple Music pages
-// @version     0.16
-// @grant       none
+// @version     0.17
 // @include     https://music.apple.com/*
 // @run-at      document-idle
 // @grant       GM_xmlhttpRequest
