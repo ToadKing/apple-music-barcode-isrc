@@ -2,14 +2,14 @@
 // @name        Apple Music Barcodes/ISRCs
 // @namespace   applemusic.barcode.isrc
 // @description Get Barcodes/ISRCs/etc. from Apple Music pages
-// @version     0.17
+// @version     0.18
 // @include     https://music.apple.com/*
 // @run-at      document-idle
 // @grant       GM_xmlhttpRequest
 // ==/UserScript==
 
 // TODO: try to find this token programmatically? It's hardcoded into scripts now so maybe not practical.
-const token = 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IldlYlBsYXlLaWQifQ.eyJpc3MiOiJBTVBXZWJQbGF5IiwiaWF0IjoxNjY2MjA5MTY4LCJleHAiOjE2NzM0NjY3NjgsInJvb3RfaHR0cHNfb3JpZ2luIjpbImFwcGxlLmNvbSJdfQ.txDAv_8oy4G8zaens4enLYtADkP_zwcVLfT4NKW9l6Bt9KEyaYj566gtchMPJ-5cj7xxxrFsbd6wJcPbNvBRCg'
+const token = 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IldlYlBsYXlLaWQifQ.eyJpc3MiOiJBTVBXZWJQbGF5IiwiaWF0IjoxNjcwNTI1ODE3LCJleHAiOjE2Nzc3ODM0MTcsInJvb3RfaHR0cHNfb3JpZ2luIjpbImFwcGxlLmNvbSJdfQ.tFyTOcl2TTRhXvNYZUUrrnxAiuRFyyk6UTmKWz-58o5h8JnUWb1_llZiJ4YBc_3AMfM2o6x85jTX1mBGDNuQ2A'
 const baseURL = 'https://amp-api.music.apple.com/v1'
 
 // Needs to attempt to use GM_xmlhttpRequest
