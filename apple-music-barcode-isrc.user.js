@@ -2,16 +2,13 @@
 // @name        Apple Music Barcodes/ISRCs
 // @namespace   applemusic.barcode.isrc
 // @description Get Barcodes/ISRCs/etc. from Apple Music pages
-// @version     0.18
-// @include     https://music.apple.com/*
+// @version     0.19
+// @match       https://music.apple.com/*
 // @run-at      document-idle
 // @grant       GM_xmlhttpRequest
 // ==/UserScript==
 
-// TODO: try to find this token programmatically? It's hardcoded into scripts now so maybe not practical.
-const token = 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IldlYlBsYXlLaWQifQ.eyJpc3MiOiJBTVBXZWJQbGF5IiwiaWF0IjoxNjcwNTI1ODE3LCJleHAiOjE2Nzc3ODM0MTcsInJvb3RfaHR0cHNfb3JpZ2luIjpbImFwcGxlLmNvbSJdfQ.tFyTOcl2TTRhXvNYZUUrrnxAiuRFyyk6UTmKWz-58o5h8JnUWb1_llZiJ4YBc_3AMfM2o6x85jTX1mBGDNuQ2A'
-const baseURL = 'https://amp-api.music.apple.com/v1'
-
+(async () => {
 // Needs to attempt to use GM_xmlhttpRequest
 // 1. we need to set the origin header to any value, which you normally cannot do with fetch, because
 // 2. we may be running in the content script context instead of the page one if we're in Firefox
@@ -30,6 +27,19 @@ async function fetchWrapper(url, options) {
     return await res.text()
   }
 }
+
+// Very hacky way to find the token automatically when it changes
+let scriptToken
+try {
+  const configScript = document.querySelector('script[crossorigin]')
+  const scriptSrc = await fetchWrapper(configScript.src)
+  scriptToken = scriptSrc.match(/("|')(ey.*?)\1/)[2]
+} catch(e) {
+  alert(`error getting apple music token: ${e}`)
+}
+
+const token = scriptToken
+const baseURL = 'https://amp-api.music.apple.com/v1'
 
 function addSimple(content, node, parent) {
   const elem = document.createElement(node)
@@ -231,3 +241,5 @@ clickMe.style.background = 'green'
 clickMe.style.cursor = 'pointer'
 clickMe.style.zIndex = 2147483647
 clickMe.addEventListener('click', getDatums)
+
+})()
