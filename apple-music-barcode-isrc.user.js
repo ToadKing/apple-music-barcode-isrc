@@ -173,7 +173,7 @@ async function getDatums() {
           addSimple("", "p", results)
       );
       atisketLink.target = "_blank";
-      atisketLink.href = `https://atisket.pulsewidth.org.uk/?preferred_countries=in&upc=${album.barcode}&preffered_vendor=itu&itu_id=${albumId}`;
+      atisketLink.href = `https://atisket.pulsewidth.org.uk/?preferred_countries=${country}&upc=${album.barcode}&preffered_vendor=itu&itu_id=${albumId}`;
       atisketLink.style.color = "#06c";
       atisketLink.style.textDecoration = "underline";
       atisketLink.addEventListener("click", (e) => {
