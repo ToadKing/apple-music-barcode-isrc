@@ -167,6 +167,20 @@ async function getDatums() {
         e.stopPropagation()
         window.open(e.target.href, e.target.target)
       })
+      const atisketLink = addSimple(
+          "open atisket with this album",
+          "a",
+          addSimple("", "p", results)
+      );
+      atisketLink.target = "_blank";
+      atisketLink.href = `https://atisket.pulsewidth.org.uk/?preferred_countries=in&upc=${album.barcode}&preffered_vendor=itu&itu_id=${albumId}`;
+      atisketLink.style.color = "#06c";
+      atisketLink.style.textDecoration = "underline";
+      atisketLink.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          window.open(e.target.href, e.target.target);
+      });
 
       const hasMultipleDiscs = album.tracks.some(t => t.disc !== 1)
 
