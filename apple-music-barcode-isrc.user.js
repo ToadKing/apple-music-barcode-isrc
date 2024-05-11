@@ -1,14 +1,20 @@
 // ==UserScript==
-// @name        Apple Music Barcodes/ISRCs
-// @namespace   applemusic.barcode.isrc
-// @description Get Barcodes/ISRCs/etc. from Apple Music pages
-// @version     0.19
-// @match       https://music.apple.com/*
-// @run-at      document-idle
-// @grant       GM_xmlhttpRequest
+// @name          Apple Music Barcodes/ISRCs
+// @namespace     applemusic.barcode.isrc
+// @description   Get Barcodes/ISRCs/etc. from Apple Music pages
+// @version       0.20
+// @match         https://music.apple.com/*
+// @exclude-match https://music.apple.com/includes/commerce/fetch-proxy.html
+// @run-at        document-idle
+// @grant         GM_xmlhttpRequest
 // ==/UserScript==
 
 (async () => {
+// for userscript managers that don't support @exclude-match
+if (document.location.pathname === '/includes/commerce/fetch-proxy.html') {
+  return
+}
+
 // Needs to attempt to use GM_xmlhttpRequest
 // 1. we need to set the origin header to any value, which you normally cannot do with fetch, because
 // 2. we may be running in the content script context instead of the page one if we're in Firefox
