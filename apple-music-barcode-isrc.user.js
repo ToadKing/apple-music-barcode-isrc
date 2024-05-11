@@ -31,7 +31,7 @@ async function fetchWrapper(url, options) {
 // Very hacky way to find the token automatically when it changes
 let scriptToken
 try {
-  const configScript = document.querySelector('script[crossorigin]')
+  const configScript = window.parent.document.querySelector('script[crossorigin]')
   const scriptSrc = await fetchWrapper(configScript.src)
   scriptToken = scriptSrc.match(/("|')(ey.*?)\1/)[2]
 } catch(e) {
