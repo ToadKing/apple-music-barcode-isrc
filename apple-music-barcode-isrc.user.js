@@ -2,7 +2,7 @@
 // @name          Apple Music Barcodes/ISRCs
 // @namespace     applemusic.barcode.isrc
 // @description   Get Barcodes/ISRCs/etc. from Apple Music pages
-// @version       0.20
+// @version       0.21
 // @match         https://music.apple.com/*
 // @exclude-match https://music.apple.com/includes/commerce/fetch-proxy.html
 // @run-at        document-idle
@@ -83,7 +83,8 @@ async function getDatums() {
 
     const albumId = document.location.pathname.split('/').reverse().find(p => /^\d+$/.test(p))
     const country = document.location.pathname.split('/')[1]
-    const url = `${baseURL}/catalog/${country}/albums/${albumId}`
+    const entryType = document.location.pathname.split('/')[2]
+    const url = `${baseURL}/catalog/${country}/${entryType}s/${albumId}`
 
     const res = await fetchWrapper(url, { method: 'GET', mode: 'cors', credentials: 'include', headers: { Authorization: `Bearer ${token}`, Origin: new URL(baseURL).origin } })
     const resJson = JSON.parse(res)
@@ -91,6 +92,7 @@ async function getDatums() {
 
     const albums = []
 
+    // albums
     for (const albumData of albumsData.filter((item) => item.type === 'albums')) {
       const album = {
         name: albumData.attributes.name,
@@ -138,8 +140,28 @@ async function getDatums() {
       albums.push(album)
     }
 
+    // music videos
+    for (const videoData of albumsData.filter((item) => item.type === 'music-videos')) {
+      const album = {
+        name: videoData.attributes.name,
+        artist: videoData.attributes.artistName,
+        releaseDate: videoData.attributes.releaseDate,
+        tracks: [{
+          name: videoData.attributes.name,
+          artist: videoData.attributes.artistName,
+          disc: 1,
+          track: 1,
+          isrc: videoData.attributes.isrc,
+          releaseDate: videoData.attributes.releaseDate,
+        }],
+        differentDates: false,
+      }
+
+      albums.push(album)
+    }
+
     if (albums.length === 0) {
-      throw new Error('no albums found')
+      throw new Error('no albums or music videos found')
     }
 
     results.textContent = ''
@@ -155,11 +177,21 @@ async function getDatums() {
         bold.textContent = '(Some track dates differ)'
         albumDate.appendChild(bold)
       }
-      addSimple(`Label: ${album.label}`, 'p', results)
-      addSimple(`Barcode: ${album.barcode}`, 'p', results)
-      addSimple(`Mastered for iTunes: ${album.isMasteredForItunes}`, 'p', results)
-      addSimple(`Audio: ${album.audio}`, 'p', results)
-      addSimple(`Copyright: ${album.copyright}`, 'p', results)
+      if (album.label !== undefined) {
+        addSimple(`Label: ${album.label}`, 'p', results)
+      }
+      if (album.barcode !== undefined) {
+        addSimple(`Barcode: ${album.barcode}`, 'p', results)
+      }
+      if (album.isMasteredForItunes !== undefined) {
+        addSimple(`Mastered for iTunes: ${album.isMasteredForItunes}`, 'p', results)
+      }
+      if (album.audio !== undefined) {
+        addSimple(`Audio: ${album.audio}`, 'p', results)
+      }
+      if (album.copyright !== undefined) {
+        addSimple(`Copyright: ${album.copyright}`, 'p', results)
+      }
       const kepstinContainer = addSimple('', 'p', results)
       const kepstinLink = addSimple('Submit to kepstin’s MagicISRC', 'a', kepstinContainer)
       kepstinLink.target = '_blank'
@@ -175,6 +207,7 @@ async function getDatums() {
       })
 
       const hasMultipleDiscs = album.tracks.some(t => t.disc !== 1)
+      const hasComposers = album.tracks.some(t => t.composer !== undefined)
 
       const table = addSimple('', 'table', results)
       table.style.width = '100%'
@@ -196,10 +229,12 @@ async function getDatums() {
       t3.style.background = 'white'
       t3.style.position = 'sticky'
       t3.style.top = 0
-      const t4 = addSimple('Composer', 'td', tr)
-      t4.style.background = 'white'
-      t4.style.position = 'sticky'
-      t4.style.top = 0
+      if (hasComposers) {
+        const t4 = addSimple('Composer', 'td', tr)
+        t4.style.background = 'white'
+        t4.style.position = 'sticky'
+        t4.style.top = 0
+      }
       const t5 = addSimple('ISRC', 'td', tr)
       t5.style.background = 'white'
       t5.style.position = 'sticky'
@@ -218,7 +253,9 @@ async function getDatums() {
         addSimple(hasMultipleDiscs ? `${track.disc}.${track.track}` : track.track, 'td', tr)
         addSimple(track.name, 'td', tr)
         addSimple(track.artist, 'td', tr)
-        addSimple(track.composer, 'td', tr)
+        if (hasComposers) {
+          addSimple(track.composer, 'td', tr)
+        }
         addSimple(track.isrc, 'td', tr)
         if (album.differentDates) {
           const trackDate = addSimple(track.releaseDate, 'td', tr)
